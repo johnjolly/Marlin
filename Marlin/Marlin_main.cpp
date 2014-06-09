@@ -2775,6 +2775,55 @@ void process_commands()
     }
     #endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
 
+	#ifdef CUSTOM_M_CODE_DETERMINE_Z_PROBE_OFFSET
+	// take a measured value of the actual z offset current and then measure and set z probe offset based on this
+	case CUSTOM_M_CODE_DETERMINE_Z_PROBE_OFFSET:
+	{
+		if (code_seen('Z'))
+		{
+			float measuredToolOffset = code_value();
+			if ((Z_PROBE_OFFSET_RANGE_MIN <= value) && (value <= Z_PROBE_OFFSET_RANGE_MAX))
+			{
+				// rebase z axis to measured value
+
+				// move up so that z probe can be deployed
+
+				// place probe over x,y location where tool offset measured
+
+				// deploy z probe
+
+				// measure z probe touchdown position
+
+				// set z probe offset to height at touchdown
+				//zprobe_zoffset = -measuredToolOffset; // compare w/ line 278 of ConfigurationStore.cpp
+				SERIAL_ECHO_START;
+				SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " " MSG_OK);
+				SERIAL_PROTOCOLLN("");
+			}
+			else
+			{
+				SERIAL_ECHO_START;
+				SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
+				SERIAL_ECHOPGM(MSG_Z_MIN);
+				SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MIN);
+				SERIAL_ECHOPGM(MSG_Z_MAX);
+				SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MAX);
+				SERIAL_PROTOCOLLN("");
+			}
+		}
+		else
+		{
+			SERIAL_ECHO_START;
+			SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " : ");
+			SERIAL_ECHO(-zprobe_zoffset);
+			SERIAL_PROTOCOLLN("");
+		}
+
+		break;
+	}
+
+	#endif //CUSTOM_M_CODE_DETERMINE_Z_PROBE_OFFSET
+
     #ifdef FILAMENTCHANGEENABLE
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
     {
